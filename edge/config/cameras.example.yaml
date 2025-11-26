@@ -1,0 +1,54 @@
+# Camera Configuration Example
+# Define all cameras connected to this edge worker
+
+cameras:
+  # Camera 1 - Main entrance
+  - id: "cam_entrance_01"
+    name: "Main Entrance Camera"
+    rtsp_url: "rtsp://admin:password@192.168.1.100:554/stream1"
+    location: "Main Gate - Entrance"
+    enabled: true
+    fps: 10
+    resolution: "1920x1080"
+    zones:
+      - name: "entry_zone"
+        polygon: [[100, 100], [500, 100], [500, 400], [100, 400]]
+      - name: "exit_zone"
+        polygon: [[600, 100], [1000, 100], [1000, 400], [600, 400]]
+
+  # Camera 2 - Exit lane
+  - id: "cam_exit_01"
+    name: "Exit Lane Camera"
+    rtsp_url: "rtsp://admin:password@192.168.1.101:554/stream1"
+    location: "Main Gate - Exit"
+    enabled: true
+    fps: 10
+    resolution: "1920x1080"
+    zones:
+      - name: "exit_detection"
+        polygon: [[200, 200], [700, 200], [700, 600], [200, 600]]
+
+  # Camera 3 - Parking lot entrance
+  - id: "cam_parking_01"
+    name: "Parking Lot Camera"
+    rtsp_url: "rtsp://admin:password@192.168.1.102:554/stream1"
+    location: "Parking Lot A - Entrance"
+    enabled: true
+    fps: 8
+    resolution: "1280x720"
+
+  # Camera 4 - Disabled camera (for maintenance)
+  - id: "cam_backup_01"
+    name: "Backup Camera"
+    rtsp_url: "rtsp://admin:password@192.168.1.103:554/stream1"
+    location: "Backup Location"
+    enabled: false
+    fps: 10
+
+  # Example: File source for testing
+  - id: "cam_test_file"
+    name: "Test Video File"
+    rtsp_url: "file:///path/to/test/video.mp4"
+    location: "Test"
+    enabled: false
+    fps: 10
