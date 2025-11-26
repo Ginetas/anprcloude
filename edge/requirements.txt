@@ -1,60 +1,24 @@
 # Core dependencies
-numpy>=1.24.0,<2.0.0
-opencv-python>=4.8.0
-opencv-contrib-python>=4.8.0
-Pillow>=10.0.0
-pyyaml>=6.0
+httpx==0.26.0
+numpy==1.24.3
+opencv-python==4.8.1.78
+Pillow==10.2.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.1
+websockets==12.0
 
-# Video processing - GStreamer
-PyGObject>=3.44.0
+# Logging
+loguru==0.7.2
 
-# Deep Learning frameworks
-torch>=2.0.0
-torchvision>=0.15.0
-tensorflow>=2.13.0,<3.0.0
-onnxruntime>=1.15.0
-tflite-runtime>=2.13.0; platform_machine == "armv7l" or platform_machine == "aarch64"
+# Video processing - GStreamer Python bindings
+# Requires system packages: gstreamer1.0-python3-plugin-loader
+PyGObject==3.46.0
 
-# Object detection models
-ultralytics>=8.0.0  # YOLOv8
-yolov5>=7.0.0
+# Hailo SDK (requires manual installation on Raspberry Pi)
+# Installation: Follow Hailo SDK documentation for your platform
+# hailo-platform==4.17.0
 
-# OCR engines
-paddleocr>=2.7.0
-paddlepaddle>=2.5.0; platform_machine != "armv7l"
-easyocr>=1.7.0
-pytesseract>=0.3.10
-
-# Configuration and validation
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
-
-# HTTP and WebSocket clients
-requests>=2.31.0
-websocket-client>=1.6.0
-aiohttp>=3.8.5
-
-# MQTT (optional)
-paho-mqtt>=1.6.1
-
-# Utilities
-python-dateutil>=2.8.2
-pytz>=2023.3
-scipy>=1.11.0
-
-# Logging and monitoring
-loguru>=0.7.0
-prometheus-client>=0.17.0
-
-# Storage
-diskcache>=5.6.3
-
-# Testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-pytest-asyncio>=0.21.0
-
-# Development
-black>=23.7.0
-flake8>=6.1.0
-mypy>=1.5.0
+# Testing (optional)
+pytest==7.4.0
+pytest-asyncio==0.21.0

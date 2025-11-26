@@ -1,5 +1,5 @@
 """
-ANPR Cloud Backend Application
+ANPR System Backend Application
 FastAPI-based backend for license plate recognition system.
 """
 

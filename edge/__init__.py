@@ -3,7 +3,7 @@ ANPR Edge Worker
 License plate recognition system - Edge computing component
 
 This package provides edge computing capabilities for the ANPR system,
-including video stream processing, vehicle detection, license plate recognition,
+including video stream processing with GStreamer, Hailo AI acceleration,
 and event export to the central backend.
 """
 
