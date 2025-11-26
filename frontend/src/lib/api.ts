@@ -11,6 +11,15 @@ import type {
   Exporter,
   PlateEvent,
   ApiError,
+  Setting,
+  SettingCreate,
+  SettingUpdate,
+  SettingValueUpdate,
+  SettingsBulkUpdate,
+  SettingsCategory,
+  SettingsValidation,
+  SettingsRecommendation,
+  SettingsHistory,
 } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -151,6 +160,156 @@ class ApiClient {
 
   async getPlateEvent(id: number): Promise<PlateEvent> {
     return this.request(`/api/plate-events/${id}`);
+  }
+
+  // Settings
+  async getSettings(params?: {
+    category?: string;
+    search?: string;
+    skip?: number;
+    limit?: number;
+  }): Promise<Setting[]> {
+    const queryParams = new URLSearchParams();
+    if (params?.category) queryParams.set('category', params.category);
+    if (params?.search) queryParams.set('search', params.search);
+    if (params?.skip !== undefined) queryParams.set('skip', String(params.skip));
+    if (params?.limit !== undefined) queryParams.set('limit', String(params.limit));
+
+    const query = queryParams.toString();
+    return this.request(`/api/settings${query ? `?${query}` : ''}`);
+  }
+
+  async getSettingsByCategory(): Promise<SettingsCategory[]> {
+    return this.request('/api/settings/categories');
+  }
+
+  async getSetting(id: number): Promise<Setting> {
+    return this.request(`/api/settings/${id}`);
+  }
+
+  async getSettingByKey(key: string): Promise<Setting> {
+    return this.request(`/api/settings/key/${encodeURIComponent(key)}`);
+  }
+
+  async createSetting(setting: SettingCreate): Promise<Setting> {
+    return this.request('/api/settings', {
+      method: 'POST',
+      body: JSON.stringify(setting),
+    });
+  }
+
+  async updateSetting(id: number, setting: SettingUpdate): Promise<Setting> {
+    return this.request(`/api/settings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(setting),
+    });
+  }
+
+  async updateSettingValue(
+    id: number,
+    update: SettingValueUpdate
+  ): Promise<Setting> {
+    return this.request(`/api/settings/${id}/value`, {
+      method: 'PATCH',
+      body: JSON.stringify(update),
+    });
+  }
+
+  async bulkUpdateSettings(
+    bulkUpdate: SettingsBulkUpdate
+  ): Promise<{ success: boolean; updated_count: number; errors: string[] }> {
+    return this.request('/api/settings/bulk-update', {
+      method: 'POST',
+      body: JSON.stringify(bulkUpdate),
+    });
+  }
+
+  async deleteSetting(id: number): Promise<void> {
+    return this.request(`/api/settings/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async exportSettings(params?: {
+    format?: 'json' | 'yaml' | 'env';
+    category?: string;
+    exclude_sensitive?: boolean;
+  }): Promise<{ format: string; data: any; exported_at: string }> {
+    const queryParams = new URLSearchParams();
+    if (params?.format) queryParams.set('format', params.format);
+    if (params?.category) queryParams.set('category', params.category);
+    if (params?.exclude_sensitive !== undefined)
+      queryParams.set('exclude_sensitive', String(params.exclude_sensitive));
+
+    const query = queryParams.toString();
+    return this.request(`/api/settings/export${query ? `?${query}` : ''}`, {
+      method: 'POST',
+    });
+  }
+
+  async importSettings(data: {
+    format: string;
+    data: any;
+    overwrite_existing?: boolean;
+    changed_by?: string;
+  }): Promise<{
+    success: boolean;
+    imported_count: number;
+    skipped_count: number;
+    errors: string[];
+    message: string;
+  }> {
+    return this.request('/api/settings/import', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async validateSetting(
+    key: string,
+    value: any
+  ): Promise<SettingsValidation> {
+    return this.request('/api/settings/validate', {
+      method: 'POST',
+      body: JSON.stringify({ key, value }),
+    });
+  }
+
+  async getSettingsRecommendations(): Promise<{
+    recommendations: SettingsRecommendation[];
+    total_count: number;
+    categories: Record<string, number>;
+  }> {
+    return this.request('/api/settings/recommendations/get');
+  }
+
+  async getSettingsHistory(params?: {
+    setting_key?: string;
+    skip?: number;
+    limit?: number;
+  }): Promise<SettingsHistory[]> {
+    const queryParams = new URLSearchParams();
+    if (params?.setting_key)
+      queryParams.set('setting_key', params.setting_key);
+    if (params?.skip !== undefined) queryParams.set('skip', String(params.skip));
+    if (params?.limit !== undefined)
+      queryParams.set('limit', String(params.limit));
+
+    const query = queryParams.toString();
+    return this.request(`/api/settings/history${query ? `?${query}` : ''}`);
+  }
+
+  async rollbackSetting(
+    historyId: number,
+    changedBy?: string
+  ): Promise<Setting> {
+    return this.request('/api/settings/rollback', {
+      method: 'POST',
+      body: JSON.stringify({
+        history_id: historyId,
+        changed_by: changedBy,
+      }),
+    });
   }
 }
 

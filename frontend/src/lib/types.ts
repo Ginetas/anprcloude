@@ -93,3 +93,100 @@ export interface Exporter {
 export interface ApiError {
   detail: string;
 }
+
+// Settings Types
+export interface Setting {
+  id: number;
+  key: string;
+  value: any;
+  category: string;
+  description?: string;
+  default_value?: any;
+  value_type: 'string' | 'int' | 'float' | 'bool' | 'array' | 'object';
+  validation_rules: Record<string, any>;
+  is_sensitive: boolean;
+  requires_restart: boolean;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SettingCreate {
+  key: string;
+  value: any;
+  category: string;
+  description?: string;
+  default_value?: any;
+  value_type?: 'string' | 'int' | 'float' | 'bool' | 'array' | 'object';
+  validation_rules?: Record<string, any>;
+  is_sensitive?: boolean;
+  requires_restart?: boolean;
+  metadata?: Record<string, any>;
+}
+
+export interface SettingUpdate {
+  value?: any;
+  description?: string;
+  default_value?: any;
+  value_type?: string;
+  validation_rules?: Record<string, any>;
+  is_sensitive?: boolean;
+  requires_restart?: boolean;
+  metadata?: Record<string, any>;
+}
+
+export interface SettingValueUpdate {
+  value: any;
+  changed_by?: string;
+  reason?: string;
+}
+
+export interface SettingsBulkUpdate {
+  settings: Array<{ key: string; value: any }>;
+  changed_by?: string;
+  reason?: string;
+}
+
+export interface SettingsCategory {
+  category: string;
+  settings: Setting[];
+  count: number;
+}
+
+export interface SettingsValidation {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  message: string;
+}
+
+export interface SettingsRecommendation {
+  setting_key: string;
+  current_value: any;
+  recommended_value: any;
+  reason: string;
+  impact: 'low' | 'medium' | 'high';
+  category: string;
+}
+
+export interface SettingsHistory {
+  id: number;
+  setting_key: string;
+  old_value: any;
+  new_value: any;
+  changed_by?: string;
+  reason?: string;
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SystemHealth {
+  status: 'healthy' | 'warning' | 'error';
+  worker_id: string;
+  uptime: number;
+  hardware_type: string;
+  active_cameras: number;
+  active_models: number;
+  system_info: Record<string, any>;
+}
