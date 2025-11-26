@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anpr-backend
+    ports:
+      - "8000:8000"  # API
+      - "9090:9090"  # Metrics
+    environment:
+      # Application
+      - DEBUG=false
+      - ENVIRONMENT=production
+
+      # Database
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=anpr
+      - POSTGRES_PASSWORD=anpr_password
+      - POSTGRES_DB=anpr_db
+
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+
+      # File Storage
+      - UPLOAD_DIR=/var/anpr/uploads
+
+      # CORS (adjust for your frontend)
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+
+      # Logging
+      - LOG_LEVEL=INFO
+    volumes:
+      - uploads:/var/anpr/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - anpr-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: anpr-postgres
+    environment:
+      - POSTGRES_USER=anpr
+      - POSTGRES_PASSWORD=anpr_password
+      - POSTGRES_DB=anpr_db
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    networks:
+      - anpr-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anpr -d anpr_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: anpr-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - anpr-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer - Database Management (Optional)
+  adminer:
+    image: adminer:latest
+    container_name: anpr-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - anpr-network
+    profiles:
+      - tools
+
+  # Redis Commander - Redis Management (Optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: anpr-redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - anpr-network
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  anpr-network:
+    driver: bridge

@@ -1,0 +1,115 @@
+# ANPR Edge Worker Configuration
+
+# Worker identification
+worker_id: "edge_worker_001"
+log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+
+# Hardware acceleration configuration
+hardware:
+  type: "cpu"  # cpu, gpu, coral, hailo, npu
+  device_id: null  # e.g., "/dev/apex_0" for Coral TPU
+  use_cuda: false
+  cuda_device: 0
+  num_threads: 4
+
+# Detection model configuration
+detection_model:
+  type: "yolov8"  # yolov5, yolov8, ssd, fasterrcnn
+  weights_path: "/path/to/models/yolov8n.pt"
+  framework: "pytorch"  # pytorch, tensorflow, onnx, tflite
+  confidence_threshold: 0.5
+  nms_threshold: 0.4
+  input_size: 640
+  classes:
+    - "vehicle"
+    - "license_plate"
+
+# OCR configuration
+ocr:
+  ensemble_method: "voting"  # voting, weighted, best
+  min_agreement: 2  # Minimum models that must agree
+  plate_format_regex: "^[A-Z]{3}\\d{3}$"  # Lithuanian plate format
+
+  models:
+    # PaddleOCR - High accuracy
+    - engine: "paddleocr"
+      language: "en"
+      confidence_threshold: 0.6
+      enabled: true
+
+    # EasyOCR - Good balance
+    - engine: "easyocr"
+      language: "en"
+      confidence_threshold: 0.5
+      enabled: true
+
+    # Tesseract - Fallback
+    - engine: "tesseract"
+      language: "eng"
+      confidence_threshold: 0.4
+      enabled: true
+
+# Event exporters
+exporters:
+  # REST API exporter
+  - type: "rest"
+    enabled: true
+    endpoint: "http://backend.local:8000/api/v1/events"
+    retry_enabled: true
+    retry_max_attempts: 5
+    retry_backoff: 2.0
+    timeout: 30
+    batch_size: 10
+    queue_path: "/var/lib/anpr/queue"
+
+  # WebSocket exporter (optional)
+  - type: "websocket"
+    enabled: false
+    endpoint: "ws://backend.local:8000/ws/events"
+    retry_enabled: true
+    retry_max_attempts: 3
+    retry_backoff: 2.0
+    timeout: 30
+    batch_size: 1
+
+  # MQTT exporter (optional)
+  - type: "mqtt"
+    enabled: false
+    endpoint: "mqtt://broker.local:1883/anpr/events"
+    retry_enabled: true
+    retry_max_attempts: 3
+    retry_backoff: 1.5
+    timeout: 10
+    batch_size: 1
+
+# GStreamer pipeline configuration
+pipeline:
+  buffer_size: 100
+  drop_on_latency: true
+  sync: false
+  latency: 0
+  use_hw_decoder: true
+
+# Object tracking configuration
+tracking:
+  max_disappeared: 50  # Max frames before object is deregistered
+  max_distance: 50.0   # Max distance for object matching
+  cooldown_seconds: 300  # 5 minutes cooldown before re-detecting same plate
+
+# Image storage
+image_save_path: "/var/lib/anpr/images"
+save_images: true
+
+# Metrics
+metrics_enabled: true
+metrics_port: 9090
+
+# Camera list (can be in separate file)
+cameras:
+  - id: "cam_entrance_01"
+    name: "Main Entrance"
+    rtsp_url: "rtsp://admin:password@192.168.1.100:554/stream1"
+    location: "Main Gate"
+    enabled: true
+    fps: 10
+    resolution: "1920x1080"
