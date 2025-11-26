@@ -1,0 +1,151 @@
+# Model Configuration Examples
+# Different model configurations for various hardware setups
+
+# High-Performance GPU Setup
+gpu_config:
+  detection_model:
+    type: "yolov8"
+    weights_path: "/models/yolov8m.pt"
+    framework: "pytorch"
+    confidence_threshold: 0.6
+    nms_threshold: 0.45
+    input_size: 640
+
+  hardware:
+    type: "gpu"
+    use_cuda: true
+    cuda_device: 0
+    num_threads: 8
+
+# Edge TPU (Coral) Setup
+coral_config:
+  detection_model:
+    type: "ssd"
+    weights_path: "/models/ssd_mobilenet_v2_coco_quant_postprocess_edgetpu.tflite"
+    framework: "tflite"
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+    input_size: 300
+
+  hardware:
+    type: "coral"
+    device_id: "/dev/apex_0"
+    num_threads: 4
+
+# CPU-Only Setup (Low power)
+cpu_config:
+  detection_model:
+    type: "yolov8"
+    weights_path: "/models/yolov8n.pt"  # Nano model for speed
+    framework: "pytorch"
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+    input_size: 416  # Smaller input for faster inference
+
+  hardware:
+    type: "cpu"
+    num_threads: 4
+
+# ONNX Runtime Setup (Cross-platform)
+onnx_config:
+  detection_model:
+    type: "yolov8"
+    weights_path: "/models/yolov8s.onnx"
+    framework: "onnx"
+    confidence_threshold: 0.55
+    nms_threshold: 0.45
+    input_size: 640
+
+  hardware:
+    type: "cpu"
+    num_threads: 6
+
+# Hailo NPU Setup (High-performance edge AI)
+hailo_config:
+  detection_model:
+    type: "yolov8"
+    weights_path: "/models/yolov8s_hailo.hef"
+    framework: "hailo"
+    confidence_threshold: 0.6
+    nms_threshold: 0.45
+    input_size: 640
+
+  hardware:
+    type: "hailo"
+    device_id: "0"
+    num_threads: 8
+
+# OCR Model Configurations
+
+# High Accuracy OCR (All engines)
+high_accuracy_ocr:
+  ensemble_method: "weighted"
+  min_agreement: 3
+  plate_format_regex: "^[A-Z]{3}\\d{3}$"
+
+  models:
+    - engine: "paddleocr"
+      language: "en"
+      confidence_threshold: 0.7
+      enabled: true
+
+    - engine: "easyocr"
+      language: "en"
+      confidence_threshold: 0.6
+      enabled: true
+
+    - engine: "tesseract"
+      language: "eng"
+      confidence_threshold: 0.5
+      enabled: true
+
+# Fast OCR (PaddleOCR only)
+fast_ocr:
+  ensemble_method: "best"
+  min_agreement: 1
+  plate_format_regex: "^[A-Z]{3}\\d{3}$"
+
+  models:
+    - engine: "paddleocr"
+      language: "en"
+      confidence_threshold: 0.5
+      enabled: true
+
+# Balanced OCR (Two engines)
+balanced_ocr:
+  ensemble_method: "voting"
+  min_agreement: 2
+  plate_format_regex: "^[A-Z]{3}\\d{3}$"
+
+  models:
+    - engine: "paddleocr"
+      language: "en"
+      confidence_threshold: 0.6
+      enabled: true
+
+    - engine: "easyocr"
+      language: "en"
+      confidence_threshold: 0.5
+      enabled: true
+
+# Multi-language OCR (Lithuanian + English)
+multilang_ocr:
+  ensemble_method: "voting"
+  min_agreement: 2
+  plate_format_regex: "^[A-Z]{3}\\d{3}$"
+
+  models:
+    - engine: "easyocr"
+      language: "en"
+      confidence_threshold: 0.6
+      enabled: true
+
+    - engine: "easyocr"
+      language: "lt"  # Lithuanian
+      confidence_threshold: 0.6
+      enabled: true
+
+    - engine: "tesseract"
+      language: "eng"
+      confidence_threshold: 0.5
+      enabled: true

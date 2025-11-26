@@ -1,0 +1,203 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.cover
+*.py,cover
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next/
+out/
+.nuxt/
+dist/
+.cache/
+.output/
+.env.test
+.env.production
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+debug.log
+.pm2/
+
+# Data directories
+uploads/
+data/
+tmp/
+temp/
+cache/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+
+# Redis
+dump.rdb
+appendonly.aof
+
+# MinIO/S3
+.minio/
+
+# Secrets and sensitive data
+*.pem
+*.key
+*.crt
+*.p12
+.htpasswd
+credentials.json
+secret.json
+
+# OS specific
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.Trash-*
+
+# Editor backups
+*.bak
+*.swp
+*.swo
+*~
+.*.un~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+test-results/
+coverage.xml
+
+# Build artifacts
+build/
+dist/
+*.whl
+*.tar.gz
+*.zip
+
+# Generated files
+*.generated.*
+generated/
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Poetry
+poetry.lock
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Temporary files
+.tmp/
+tmp/
+temp/
+
+# Documentation build
+docs/_build/
+site/
+
+# IDE specific
+.vscode/settings.json
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+
+# OS generated files
+.env.prod
+.env.staging
+
+# Local configuration
+local_settings.py
+
+# Project specific
+.anpr/
+state/
+models/cache/
