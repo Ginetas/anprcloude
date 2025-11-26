@@ -394,3 +394,132 @@ class EventStatistics(SQLModel, table=True):
         description="Events count by hour"
     )
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# Settings Model
+class Settings(TimestampMixin, table=True):
+    """
+    System settings and configuration.
+
+    Stores all configurable settings for the ANPR system including:
+    - System settings (worker_id, log_level, etc.)
+    - Hardware settings (GPU, NPU, CPU configuration)
+    - Camera, zone, model, OCR, pipeline settings
+    - Storage, monitoring, security, notification settings
+
+    Attributes:
+        id: Primary key
+        key: Setting key/name (unique)
+        value: Setting value (stored as JSON)
+        category: Setting category (system, hardware, camera, etc.)
+        description: Human-readable description
+        default_value: Default value for this setting
+        value_type: Expected value type (string, int, float, bool, json)
+        validation_rules: Validation rules as JSON
+        is_sensitive: Whether this setting contains sensitive data
+        requires_restart: Whether changing this setting requires restart
+        metadata: Additional metadata
+    """
+
+    __tablename__ = "settings"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    key: str = Field(
+        unique=True,
+        index=True,
+        max_length=255,
+        description="Setting key/name (e.g., 'system.worker_id', 'hardware.type')"
+    )
+    value: Any = Field(
+        sa_column=Column(JSON),
+        description="Setting value (can be any JSON-serializable type)"
+    )
+    category: str = Field(
+        index=True,
+        max_length=100,
+        description="Setting category (system, hardware, camera, detection, ocr, etc.)"
+    )
+    description: Optional[str] = Field(
+        default=None,
+        max_length=512,
+        description="Human-readable description of this setting"
+    )
+    default_value: Any = Field(
+        default=None,
+        sa_column=Column(JSON),
+        description="Default value for this setting"
+    )
+    value_type: str = Field(
+        default="string",
+        max_length=50,
+        description="Expected value type (string, int, float, bool, array, object)"
+    )
+    validation_rules: Dict[str, Any] = Field(
+        default_factory=dict,
+        sa_column=Column(JSON),
+        description="Validation rules (min, max, pattern, enum, etc.)"
+    )
+    is_sensitive: bool = Field(
+        default=False,
+        description="Whether this setting contains sensitive data (passwords, keys)"
+    )
+    requires_restart: bool = Field(
+        default=False,
+        description="Whether changing this setting requires system restart"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        sa_column=Column(JSON),
+        description="Additional metadata (help text, examples, related settings, etc.)"
+    )
+
+
+# Settings History Model
+class SettingsHistory(TimestampMixin, table=True):
+    """
+    Audit log for settings changes.
+
+    Tracks all changes to settings for rollback and audit purposes.
+
+    Attributes:
+        id: Primary key
+        setting_key: The setting that was changed
+        old_value: Previous value
+        new_value: New value
+        changed_by: User/system that made the change
+        reason: Optional reason for the change
+        metadata: Additional metadata
+    """
+
+    __tablename__ = "settings_history"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    setting_key: str = Field(
+        index=True,
+        max_length=255,
+        description="Setting key that was changed"
+    )
+    old_value: Any = Field(
+        default=None,
+        sa_column=Column(JSON),
+        description="Previous value"
+    )
+    new_value: Any = Field(
+        sa_column=Column(JSON),
+        description="New value"
+    )
+    changed_by: Optional[str] = Field(
+        default="system",
+        max_length=255,
+        description="User or system that made the change"
+    )
+    reason: Optional[str] = Field(
+        default=None,
+        max_length=512,
+        description="Reason for the change"
+    )
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        sa_column=Column(JSON),
+        description="Additional metadata"
+    )

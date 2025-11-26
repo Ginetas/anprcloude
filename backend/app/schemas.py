@@ -352,3 +352,143 @@ class PaginatedResponse(BaseModel):
     limit: int
     offset: int
     has_more: bool
+
+
+# Settings Schemas
+class SettingsBase(BaseModel):
+    """Base settings schema."""
+
+    key: str = Field(..., min_length=1, max_length=255, description="Setting key (e.g., 'system.worker_id')")
+    value: Any = Field(..., description="Setting value (any JSON-serializable type)")
+    category: str = Field(..., max_length=100, description="Setting category")
+    description: Optional[str] = Field(None, max_length=512, description="Setting description")
+    default_value: Optional[Any] = Field(None, description="Default value")
+    value_type: str = Field(default="string", max_length=50, description="Value type (string, int, float, bool, array, object)")
+    validation_rules: Dict[str, Any] = Field(default_factory=dict, description="Validation rules")
+    is_sensitive: bool = Field(default=False, description="Contains sensitive data")
+    requires_restart: bool = Field(default=False, description="Requires system restart")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+
+
+class SettingsCreate(SettingsBase):
+    """Schema for creating a setting."""
+    pass
+
+
+class SettingsUpdate(BaseModel):
+    """Schema for updating a setting."""
+
+    value: Optional[Any] = None
+    description: Optional[str] = Field(None, max_length=512)
+    default_value: Optional[Any] = None
+    value_type: Optional[str] = None
+    validation_rules: Optional[Dict[str, Any]] = None
+    is_sensitive: Optional[bool] = None
+    requires_restart: Optional[bool] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class SettingsRead(SettingsBase, TimestampSchema):
+    """Schema for reading a setting."""
+
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class SettingValueUpdate(BaseModel):
+    """Schema for updating only a setting's value."""
+
+    value: Any = Field(..., description="New setting value")
+    changed_by: Optional[str] = Field(default="system", description="User making the change")
+    reason: Optional[str] = Field(None, max_length=512, description="Reason for change")
+
+
+class SettingsBulkUpdate(BaseModel):
+    """Schema for bulk updating multiple settings."""
+
+    settings: List[Dict[str, Any]] = Field(..., description="List of settings to update")
+    changed_by: Optional[str] = Field(default="system", description="User making the changes")
+    reason: Optional[str] = Field(None, description="Reason for changes")
+
+
+class SettingsExportResponse(BaseModel):
+    """Schema for settings export response."""
+
+    format: str = Field(..., description="Export format (json, yaml, env)")
+    data: Any = Field(..., description="Exported settings data")
+    exported_at: datetime = Field(default_factory=datetime.utcnow, description="Export timestamp")
+
+
+class SettingsImportRequest(BaseModel):
+    """Schema for settings import request."""
+
+    format: str = Field(..., description="Import format (json, yaml, env)")
+    data: Any = Field(..., description="Settings data to import")
+    overwrite_existing: bool = Field(default=False, description="Overwrite existing settings")
+    changed_by: Optional[str] = Field(default="system", description="User performing import")
+
+
+class SettingsImportResponse(BaseModel):
+    """Schema for settings import response."""
+
+    success: bool
+    imported_count: int
+    skipped_count: int
+    errors: List[str] = Field(default_factory=list)
+    message: str
+
+
+class SettingsValidationRequest(BaseModel):
+    """Schema for validating a setting value."""
+
+    key: str = Field(..., description="Setting key to validate")
+    value: Any = Field(..., description="Value to validate")
+
+
+class SettingsValidationResponse(BaseModel):
+    """Schema for validation response."""
+
+    valid: bool
+    errors: List[str] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
+    message: str
+
+
+class SettingsRecommendationsResponse(BaseModel):
+    """Schema for settings recommendations."""
+
+    recommendations: List[Dict[str, Any]] = Field(default_factory=list)
+    total_count: int
+    categories: Dict[str, int]
+
+
+class SettingsHistoryRead(TimestampSchema):
+    """Schema for reading settings history."""
+
+    id: int
+    setting_key: str
+    old_value: Optional[Any]
+    new_value: Any
+    changed_by: Optional[str]
+    reason: Optional[str]
+    metadata: Dict[str, Any]
+
+    class Config:
+        from_attributes = True
+
+
+class SettingsRollbackRequest(BaseModel):
+    """Schema for rolling back a setting."""
+
+    history_id: Optional[int] = Field(None, description="History entry ID to rollback to")
+    changed_by: Optional[str] = Field(default="system", description="User performing rollback")
+
+
+class SettingsCategoryResponse(BaseModel):
+    """Schema for settings grouped by category."""
+
+    category: str
+    settings: List[SettingsRead]
+    count: int
