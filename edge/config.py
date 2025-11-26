@@ -56,11 +56,13 @@ class DetectionModelConfig(BaseModel):
 class OCRModelConfig(BaseModel):
     """OCR model configuration"""
 
-    engine: Literal["paddleocr", "easyocr", "tesseract"] = Field(..., description="OCR engine")
+    engine: Literal["paddleocr", "easyocr", "tesseract", "fast_plate_ocr"] = Field(..., description="OCR engine")
     language: str = Field("en", description="OCR language")
     weights_path: Optional[str] = Field(None, description="Custom weights path")
+    model_path: Optional[str] = Field(None, description="Model file path (for ONNX/HEF models)")
     confidence_threshold: float = Field(0.5, ge=0.0, le=1.0, description="OCR confidence threshold")
     enabled: bool = Field(True, description="Whether this OCR engine is enabled")
+    use_hailo: bool = Field(False, description="Use Hailo-8L acceleration (requires HEF model)")
 
 
 class OCRConfig(BaseModel):

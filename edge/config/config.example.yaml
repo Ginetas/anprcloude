@@ -31,23 +31,31 @@ ocr:
   plate_format_regex: "^[A-Z]{3}\\d{3}$"  # Lithuanian plate format
 
   models:
+    # Fast Plate OCR - High-performance with Hailo-8L support (RECOMMENDED)
+    - engine: "fast_plate_ocr"
+      language: "en"
+      model_path: "/path/to/models/fast-plate-ocr.onnx"  # or .hef for Hailo
+      confidence_threshold: 0.7
+      use_hailo: true  # Set to true for Hailo-8L acceleration
+      enabled: true
+
     # PaddleOCR - High accuracy
     - engine: "paddleocr"
       language: "en"
       confidence_threshold: 0.6
-      enabled: true
+      enabled: false  # Disable if using fast_plate_ocr
 
     # EasyOCR - Good balance
     - engine: "easyocr"
       language: "en"
       confidence_threshold: 0.5
-      enabled: true
+      enabled: false  # Disable if using fast_plate_ocr
 
     # Tesseract - Fallback
     - engine: "tesseract"
       language: "eng"
       confidence_threshold: 0.4
-      enabled: true
+      enabled: true  # Keep as fallback
 
 # Event exporters
 exporters:
