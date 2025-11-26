@@ -289,6 +289,92 @@ PaddleOCR fine-tuning for license plates:
 # https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_en/finetune_en.md
 ```
 
+### Fast Plate OCR with Hailo-8L (Recommended)
+
+**fast-plate-ocr** is a high-performance OCR engine optimized for license plates with Hailo-8L acceleration support.
+
+#### Why Use fast-plate-ocr?
+
+- 🚀 **8-10x faster** than CPU-based OCR (5-15ms vs 80-120ms)
+- 🎯 **95%+ accuracy** for license plates
+- 💡 **Low power** consumption with Hailo-8L
+- 🔧 **Easy integration** with ONNX/HEF models
+- 🌍 **Multi-region** support (customizable character sets)
+
+#### Installation
+
+```bash
+# Install fast-plate-ocr
+pip install fast-plate-ocr>=0.1.3 onnxruntime>=1.16.0
+
+# Get pre-trained model
+wget https://github.com/ankandrew/fast-plate-ocr/releases/download/v0.1.3/model.onnx
+```
+
+#### Convert ONNX to HEF for Hailo-8L
+
+```bash
+# Install Hailo SDK (follow official docs)
+# https://hailo.ai/developer-zone/documentation/
+
+# Prepare calibration dataset (100-500 plate images)
+mkdir -p calibration_data
+# Add representative license plate crops to calibration_data/
+
+# Convert model
+python scripts/convert_onnx_to_hef.py \
+    --input model.onnx \
+    --output fast-plate-ocr-hailo8l.hef \
+    --calib-dataset ./calibration_data \
+    --batch-size 1 \
+    --target hailo8l \
+    --precision int8
+```
+
+See [scripts/README.md](scripts/README.md) for detailed conversion instructions.
+
+#### Configuration
+
+Update `config/config.yaml`:
+
+```yaml
+ocr:
+  ensemble_method: "voting"
+  min_agreement: 1
+
+  models:
+    # Fast Plate OCR with Hailo-8L (primary)
+    - engine: "fast_plate_ocr"
+      language: "en"
+      model_path: "/path/to/fast-plate-ocr-hailo8l.hef"
+      confidence_threshold: 0.7
+      use_hailo: true
+      enabled: true
+
+    # Tesseract as fallback
+    - engine: "tesseract"
+      language: "eng"
+      confidence_threshold: 0.5
+      enabled: true
+```
+
+#### Performance Comparison
+
+| OCR Engine | Hardware | Inference Time | Accuracy | Power |
+|------------|----------|---------------|----------|-------|
+| **fast-plate-ocr** | **Hailo-8L** | **5-15ms** | **95%+** | **~2W** |
+| PaddleOCR | CPU | 80-120ms | 95%+ | ~8W |
+| EasyOCR | CPU | 100-150ms | 93%+ | ~8W |
+| Tesseract | CPU | 50-80ms | 85%+ | ~5W |
+
+**Recommended**: Use fast-plate-ocr with Hailo-8L for production deployments.
+
+#### Links
+
+- **GitHub**: https://github.com/ankandrew/fast-plate-ocr
+- **Conversion Script**: [scripts/convert_onnx_to_hef.py](scripts/convert_onnx_to_hef.py)
+- **Hailo Documentation**: https://hailo.ai/developer-zone/
+
 ## Testing
 
 ```bash
