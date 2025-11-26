@@ -1,0 +1,13 @@
+httpx==0.26.0
+numpy==1.24.3
+opencv-python==4.8.1.78
+pydantic==2.5.3
+python-dotenv==1.0.1
+websockets==12.0
+Pillow==10.2.0
+
+# Hailo SDK (requires manual installation on Raspberry Pi)
+# hailo-platform==4.17.0
+
+# GStreamer Python bindings (requires system packages)
+# PyGObject==3.46.0
