@@ -1,23 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .core.config import settings
+from .core.config import settings as app_settings
 from .core.database import engine, Base
-from .api.endpoints import cameras, zones, models, exporters, plate_events, websocket
+from .api.endpoints import cameras, zones, models, exporters, plate_events, websocket, settings
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION,
-    debug=settings.DEBUG
+    title=app_settings.APP_NAME,
+    version=app_settings.APP_VERSION,
+    debug=app_settings.DEBUG
 )
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=app_settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,11 +30,12 @@ app.include_router(models.router, prefix="/api/models", tags=["models"])
 app.include_router(exporters.router, prefix="/api/exporters", tags=["exporters"])
 app.include_router(plate_events.router, prefix="/api/plate-events", tags=["plate-events"])
 app.include_router(websocket.router, prefix="/api", tags=["websocket"])
+app.include_router(settings.router, prefix="/api/settings", tags=["settings"])
 
 
 @app.get("/")
 async def root():
-    return {"message": f"{settings.APP_NAME} v{settings.APP_VERSION}"}
+    return {"message": f"{app_settings.APP_NAME} v{app_settings.APP_VERSION}"}
 
 
 @app.get("/healthz")
